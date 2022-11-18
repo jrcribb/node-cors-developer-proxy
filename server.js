@@ -14,22 +14,27 @@ const express = require("express");
 const request = require("request");
 const bodyParser = require("body-parser");
 const app = express();
-app.set("port", process.env.PORT || 3000); 
-app.set("limit", process.env.LIMIT || "100Kb");
-app.set("parser", process.env.PARSER || "json");
-app.set("allowed", process.env.ALLOWED || "*");
+const parserLimit = process.env.LIMIT || "100Kb";
+const parserName = process.env.PARSER || "json";
+const proxyPort = process.env.PORT || 3000;
+const proxyAllowedDomains = process.env.ALLOWED || "*";
 
-if (app.get("parser")=="json") {
-    app.use(bodyParser.json({ limit: app.get("limit") }));
+app.set("port", proxyPort);
+app.set("limit", parserLimit);
+app.set("parser", parserName);
+app.set("allowed", proxyAllowedDomains);
+
+if (parserName == "json") {
+    app.use(bodyParser.json({ limit: parserLimit }));
 } else {
-    if (app.get("parser")=="text") {
-        app.use(bodyParser.text({ limit: app.get("limit") }));
+    if (parserName == "text") {
+        app.use(bodyParser.text({ limit: parserLimit }));
     } else {
-        if (app.get("parser")=="raw") {
-            app.use(bodyParser.raw({ limit: app.get("limit") }));
+        if (parserName == "raw") {
+            app.use(bodyParser.raw({ limit: parserLimit }));
         } else {
-            if (app.get("parser")=="urlencoded") {
-                app.use(bodyParser.urlencoded({ limit: app.get("limit") }));
+            if (parserName == "urlencoded") {
+                app.use(bodyParser.urlencoded({ limit: parserLimit }));
             }
         }
     }
@@ -46,10 +51,15 @@ app.all("*", function (req, res, next) {
         res.status(200).send();
     } else {
         var targetDomain = req.header("Target-Domain");
-        const { origin} = req.headers;
+        const { origin } = req.headers;
         const testLocalHost = /\/\/localhost/gm;
-        if (testLocalHost.test(origin)) {
-            console.log(".",req.method, targetDomain + req.url,'('+origin+')');
+        if (proxyAllowedDomains != "*" || testLocalHost.test(origin)) {
+            console.log(
+                ".",
+                req.method,
+                targetDomain + req.url,
+                "(" + origin + ")"
+            );
             if (!targetDomain) {
                 console.log("!", no_target_header);
                 res.status(500).send(no_target_header);
@@ -69,19 +79,24 @@ app.all("*", function (req, res, next) {
                 }
             ).pipe(res);
         } else {
-            console.log(". CORS error:",req.method, targetDomain + req.url,'('+origin+')');
-            res.status(401).send("Error de acceso CORS");
+            console.log(
+                ". Proxy enabled only for localhost connections:",
+                req.method,
+                targetDomain + req.url,
+                "(" + origin + ")"
+            );
+            res.status(401).send("Proxy enabled only for localhost connections");
         }
     }
 });
 
 app.listen(app.get("port"), function () {
-    const {port,limit,parser} = app.settings
+    const { port, limit, parser } = app.settings;
     console.log(
         "Servidor Proxy activo en port " +
             port +
             " usando límite de " +
-            limit + 
+            limit +
             " y el parser bodyParser." +
             parser
     );
