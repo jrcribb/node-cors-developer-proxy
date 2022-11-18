@@ -1,0 +1,29 @@
+{
+  "name": "cors-developer-proxy",
+  "version": "1.0.0",
+  "description": "Node CORS developer's proxy",
+  "main": "server.js",
+  "scripts": {
+    "test": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrcribb/node-cors-developer-proxy.git"
+  },
+  "keywords": [
+    "node",
+    "cors",
+    "proxy"
+  ],
+  "author": "Jorge Ronald Cribb",
+  "license": "LGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/jrcribb/node-cors-developer-proxy/issues"
+  },
+  "homepage": "https://github.com/jrcribb/node-cors-developer-proxy#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "nodemon": "^2.0.20"
+  }
+}
