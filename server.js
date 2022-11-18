@@ -1,15 +1,10 @@
 /*
     node-cors-developer-proxy
 	A proxy server just for development services tipically in localhost
-	Para desarrollo de aplicaciones web que requieran 
-    acceso a APIs que no satisfacen el control CORS
-    No debe usarse fuera de su ámbito específico, desarrollo, por
-    las implicancias de seguridad y consumo de recursos añadidos.
-    Para iniciar el servidor hacer: nodemon server.js en la carpeta
-    raiz de este proyecto
+    Author: jrcribb
 */
-const no_target_header =
-    "No ha indicado el end-point usando la cabecera Target-Domain";
+const no_target_header = "You must set Target-Domain on the request header";
+const just_for_localhost = "Proxy enabled only for localhost connections";
 const express = require("express");
 const request = require("request");
 const bodyParser = require("body-parser");
@@ -80,12 +75,13 @@ app.all("*", function (req, res, next) {
             ).pipe(res);
         } else {
             console.log(
-                ". Proxy enabled only for localhost connections:",
+                ".",
+                just_for_localhost,
                 req.method,
                 targetDomain + req.url,
                 "(" + origin + ")"
             );
-            res.status(401).send("Proxy enabled only for localhost connections");
+            res.status(401).send(just_for_localhost);
         }
     }
 });
