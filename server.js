@@ -3,8 +3,15 @@
 	A proxy server just for development services tipically in localhost
     Author: jrcribb
 */
+const useBodyParser = (app_, limit_, bodyParser_) => {
+    console.log(bodyParser_);
+    app_.use(bodyParser_({ limit: limit_ }));
+    console.log(app_.useBodyParser);
+};
+
 const no_target_header = "You must set Target-Domain on the request header";
 const just_for_localhost = "Proxy enabled only for localhost connections";
+const wrong_parser_name = "Wrong parser name specified";
 const express = require("express");
 const request = require("request");
 const bodyParser = require("body-parser");
@@ -13,26 +20,30 @@ const parserLimit = process.env.LIMIT || "100Kb";
 const parserName = process.env.PARSER || "json";
 const proxyPort = process.env.PORT || 3000;
 const proxyAllowedDomains = process.env.ALLOWED || "*";
-
+const bodyParserList = ["json", "text", "raw", "urlencoded"];
 app.set("port", proxyPort);
 app.set("limit", parserLimit);
 app.set("parser", parserName);
 app.set("allowed", proxyAllowedDomains);
-
-if (parserName == "json") {
-    app.use(bodyParser.json({ limit: parserLimit }));
-} else {
-    if (parserName == "text") {
-        app.use(bodyParser.text({ limit: parserLimit }));
+if (bodyParserList.includes(parserName)) {
+    if (app.get("parser") == "json") {
+        app.use(bodyParser.json({ limit: app.get("limit") }));
     } else {
-        if (parserName == "raw") {
-            app.use(bodyParser.raw({ limit: parserLimit }));
+        if (app.get("parser") == "text") {
+            app.use(bodyParser.text({ limit: app.get("limit") }));
         } else {
-            if (parserName == "urlencoded") {
-                app.use(bodyParser.urlencoded({ limit: parserLimit }));
+            if (app.get("parser") == "raw") {
+                app.use(bodyParser.raw({ limit: app.get("limit") }));
+            } else {
+                if (app.get("parser") == "urlencoded") {
+                    app.use(bodyParser.urlencoded({ limit: app.get("limit") }));
+                }
             }
         }
     }
+} else {
+    console.log(".", wrong_parser_name);
+    return;
 }
 
 app.all("*", function (req, res, next) {
@@ -88,12 +99,5 @@ app.all("*", function (req, res, next) {
 
 app.listen(app.get("port"), function () {
     const { port, limit, parser } = app.settings;
-    console.log(
-        "Servidor Proxy activo en port " +
-            port +
-            " usando límite de " +
-            limit +
-            " y el parser bodyParser." +
-            parser
-    );
+    console.log("Developer's Proxy server on port", port);
 });
