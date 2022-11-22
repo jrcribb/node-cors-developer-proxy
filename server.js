@@ -47,7 +47,7 @@ if (bodyParserList.includes(parserName)) {
 }
 
 app.all("*", function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", app.get("allowed"));
+    res.header("Access-Control-Allow-Origin", proxyAllowedDomains);
     res.header("Access-Control-Allow-Methods", "GET, PUT, PATCH, POST, DELETE");
     res.header(
         "Access-Control-Allow-Headers",
