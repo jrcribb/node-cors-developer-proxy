@@ -3,11 +3,6 @@
 	A proxy server just for development services tipically in localhost
     Author: jrcribb
 */
-const useBodyParser = (app_, limit_, bodyParser_) => {
-    console.log(bodyParser_);
-    app_.use(bodyParser_({ limit: limit_ }));
-    console.log(app_.useBodyParser);
-};
 
 const no_target_header = "You must set Target-Domain on the request header";
 const just_for_localhost = "Proxy enabled only for localhost connections";
